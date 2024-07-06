@@ -9,33 +9,48 @@ const Socketio = require("socket.io")(Http, {
 });
 
 
+const activeDeck = [
+    "AC", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C", "JC", "QC", "KC",
+    "AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD",
+    "AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH", "KH",
+    "AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS",
+    "H1", "H2"
+];
 
-var position = {
-    x: 200,
-    y: 200
+const discardedDeck = [];
+const playerDecks = {}
+let playerCount = 0;
+const MAX_PLAYERS = 6;
+
+function initializePlayer(playerName) {
+    playerDecks[playerName] = [...Array(4)].map(() => takeRandomCardFrom(activeDeck))
+    console.log("the deck is: ", playerDecks[playerName])
+}
+
+function takeRandomCardFrom(deck) {
+    const randomCardIndex = Math.floor(Math.random() * deck.length)
+    const randomCard = deck.splice(randomCardIndex, 1)
+    console.log("random c is: ", randomCard[0])
+    return randomCard[0]
 }
 
 Socketio.on("connection", socket => {
-    socket.emit("position", position);
-    socket.on("move", data => {
-        switch (data) {
-            case "left":
-                position.x -= 10;
-                break;
-            case "right":
-                position.x += 10;
-                break;
-            case "up":
-                position.y -= 10;
-                break;
-            case "down":
-                position.y += 10;
-                break;
-            default:
-                break;
-        }
-        Socketio.emit("position", position)
-    })
+    if (playerCount >= MAX_PLAYERS) {
+        socket.emit('error', { message: 'The game is full. Please try again later.' });
+        socket.disconnect();
+        return;
+    }
+    playerCount++;
+
+    console.log("new connection: ", socket.id)
+
+    initializePlayer(socket.id);
+    socket.emit("initialState", {
+        activeDeck: activeDeck[0],
+        discardedDeck: discardedDeck[discardedDeck.length - 1],
+        myDeck: playerDecks[socket.id]
+    });
+
 })
 
 Http.listen(3210, () => {
