@@ -1,6 +1,7 @@
 <script setup>
 import { io } from "socket.io-client"
 import { onMounted, ref } from "vue";
+import Hand from "./components/Hand.vue";
 
 const socket = ref(null);
 socket.value = io('http://localhost:3210');
@@ -8,6 +9,8 @@ socket.value = io('http://localhost:3210');
 const activeDeck = ref(null)
 const discardedDeck = ref(null)
 const myDeck = ref()
+
+const playerName = defineProps(["playerName"]);
 
 
 onMounted(() => {
@@ -32,9 +35,7 @@ function drawCard(direction) {
 </script>
 
 <template>
-  <div class="my_hand">
-    <p v-for="card in myDeck">{{ card }}</p>
-  </div>
+  <Hand :cards="myDeck" />
 </template>
 
 <style scoped></style>

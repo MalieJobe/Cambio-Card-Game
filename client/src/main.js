@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
-import Game from './CambioGame.vue'
+import App from './App.vue'
+import './index.css'
 
-createApp(Game).mount('#app')
+createApp(App).mount('#app')
