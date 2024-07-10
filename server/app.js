@@ -1,58 +1,100 @@
-const cors = require("cors");
-const Express = require("express")().use(cors());
-const Http = require("http").Server(Express);
-const Socketio = require("socket.io")(Http, {
+import cors from 'cors';
+import express from 'express';
+import { createServer } from 'http';
+import { Server as SocketIO } from 'socket.io';
+
+const app = express().use(cors());
+const httpServer = createServer(app);
+const Socketio = new SocketIO(httpServer, {
     cors: {
-        origin: "http://localhost:5173", // Change this to your client's origin
+        origin: "http://localhost:5173",
         methods: ["GET", "POST"]
     }
 });
 
-
-const activeDeck = [
-    "AC", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C", "JC", "QC", "KC",
-    "AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD",
-    "AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH", "KH",
-    "AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS",
-    "H1", "H2"
-];
-
-const discardedDeck = [];
-const playerDecks = {}
-let playerCount = 0;
-const MAX_PLAYERS = 6;
-
-function initializePlayer(playerName) {
-    playerDecks[playerName] = [...Array(4)].map(() => takeRandomCardFrom(activeDeck))
-    console.log("the deck is: ", playerDecks[playerName])
-}
-
-function takeRandomCardFrom(deck) {
-    const randomCardIndex = Math.floor(Math.random() * deck.length)
-    const randomCard = deck.splice(randomCardIndex, 1)
-    console.log("random c is: ", randomCard[0])
-    return randomCard[0]
-}
-
-Socketio.on("connection", socket => {
-    if (playerCount >= MAX_PLAYERS) {
-        socket.emit('error', { message: 'The game is full. Please try again later.' });
-        socket.disconnect();
-        return;
-    }
-    playerCount++;
-
-    console.log("new connection: ", socket.id)
-
-    initializePlayer(socket.id);
-    socket.emit("initialState", {
-        activeDeck: activeDeck[0],
-        discardedDeck: discardedDeck[discardedDeck.length - 1],
-        myDeck: playerDecks[socket.id]
-    });
-
-})
-
-Http.listen(3210, () => {
+httpServer.listen(3210, () => {
     console.log("listening at 3210...");
 })
+
+const MAX_PLAYERS = 6;
+// const MIN_PLAYERS = 2;
+
+const GAMES = {};
+const PLAYERS = {};
+
+
+Socketio.on("connection", socket => {
+
+    socket.on("disconnect", (reason) => {
+        console.log("disconnected: ", socket.id, reason)
+    });
+
+    const clientUUID = crypto.randomUUID();
+    PLAYERS[clientUUID] = { "connection": socket, "userName": null };
+
+    socket.emit("connection", { "ClientId": clientUUID });
+    console.log("new connection: ", socket.id)
+})
+
+Socketio.on("createGame", data => {
+    const { clientId } = data;
+    const gameUUID = crypto.randomUUID();
+
+    GAMES[gameUUID] = { "players": [] };
+    console.log("new game created: ", gameUUID)
+
+    PLAYERS[clientId]["connection"].emit("createGame", { "gameId": gameUUID });
+})
+
+Socketio.on("joinGame", data => {
+    const { clientId, gameId, userName } = data;
+
+    if (GAMES[gameId] && GAMES[gameId].players.length < MAX_PLAYERS) {
+        PLAYERS[clientId]["userName"] = userName;
+        GAMES[gameId].players.push(clientId);
+        console.log("player joined game: ", userName, gameId)
+    } else {
+        console.log("game is full: ", gameId)
+    }
+})
+
+
+// initializePlayer(socket.id);
+//     socket.emit("initialState", {
+//         activeDeck: activeDeck[0],
+//         discardedDeck: discardedDeck[discardedDeck.length - 1],
+//         myDeck: playerDecks[socket.id]
+//     });
+
+// import Deck from "./classes/Deck.js";
+// import Player from "./classes/Player.js";
+// import Card from "./classes/Card.js";
+
+// const activeDeck = new Deck([]);
+// activeDeck.loadFullDeck();
+// activeDeck.shuffle();
+
+// const discardedDeck = new Deck([]);
+
+
+// const playerDecks = {}
+// let playerCount = 0;
+// const MAX_PLAYERS = 6;
+
+// function initializePlayer(playerName) {
+//     playerDecks[playerName] = [...Array(4)].map(() => takeRandomCardFrom(activeDeck))
+//     console.log("the deck is: ", playerDecks[playerName])
+// }
+
+// function takeRandomCardFrom(deck) {
+//     const randomCardIndex = Math.floor(Math.random() * deck.length)
+//     const randomCard = deck.splice(randomCardIndex, 1)
+//     console.log("random c is: ", randomCard[0])
+//     return randomCard[0]
+// }
+
+// if (playerCount >= MAX_PLAYERS) {
+//     socket.emit('error', { message: 'The game is full. Please try again later.' });
+//     socket.disconnect();
+//     return;
+// }
