@@ -20,14 +20,19 @@
 </template>
 
 <script setup>
-import { inject, ref } from 'vue';
+import { inject, ref, watch } from 'vue';
 
 const { safeSend } = inject('socket');
 const { uuid, userName } = inject('userData');
-const { joinGame } = inject('gameData');
+const { joinGame, setGameId } = inject('gameData');
 
 const roomCode = ref(null);
 
+watch(roomCode, (code) => {
+    if (code) {
+        setGameId(code);
+    }
+});
 
 function createGame() {
     console.log("Creating game");
@@ -35,6 +40,7 @@ function createGame() {
     safeSend({
         'method': 'createGame',
         'clientId': uuid.value,
+        'userName': userName.value,
     });
 }
 

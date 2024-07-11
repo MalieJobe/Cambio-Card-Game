@@ -1,11 +1,13 @@
 import { WebSocketServer } from 'ws';
+import Game from './classes/Game.js';
+import Deck from './classes/Deck.js';
+import Player from './classes/Player.js';
 
 const wss = new WebSocketServer({ port: 3210 });
 
-console.log("Server started on port 3210");
+console.log("Server started on port " + wss.options.port);
 
 const MAX_PLAYERS = 6;
-// const MIN_PLAYERS = 2;
 const GAMES = {};
 const PLAYERS = {};
 
@@ -17,13 +19,9 @@ wss.on('connection', ws => {
     ws.on('message', data => parseIncomingMessage(data));
 
     const clientUUID = crypto.randomUUID();
-    PLAYERS[clientUUID] = { "socket": ws, "userName": null };
+    PLAYERS[clientUUID] = new Player(ws);
 
     safeSend(ws, { 'method': 'connection', 'clientId': clientUUID });
-
-    // setInterval(() => {
-    //     safeSend(ws, { 'method': 'test', 'payload': true });
-    // }, 5000);
 });
 
 function safeSend(ws, data) {
@@ -53,45 +51,45 @@ function parseIncomingMessage(data) {
     }
 }
 
-function createGame(data) {
-    if (!data["clientId"]) throw new Error("Payload must contain a clientId key");
-    const { clientId } = data;
-    const gameUUID = crypto.randomUUID();
+function createGame(message) {
+    const { clientId, userName } = message;
+    if (!userName) throw new Error("Payload must contain a userName key");
 
-    GAMES[gameUUID] = { "players": [] };
+
+    const gameUUID = crypto.randomUUID();
+    const game = new Game(new Deck([]), new Deck([]));
+    game.activeDeck.loadFullDeck();
+    game.activeDeck.shuffle();
+
+    GAMES[gameUUID] = game;
     console.log("new game created: ", gameUUID)
 
-    console.log(PLAYERS)
-
-    safeSend(PLAYERS[clientId]["socket"], {
-        "method": "createGame",
-        "gameId": gameUUID,
-    });
+    joinGame({ clientId, "gameId": gameUUID, userName });
 }
 
 function joinGame(data) {
     const { clientId, gameId, userName } = data;
-
     if (!gameId) throw new Error("Payload must contain a gameId key");
+    if (!GAMES[gameId]) throw new Error("Could not find game"); // todo answer to client
+    if (GAMES[gameId].players.length >= MAX_PLAYERS) throw new Error("Game is full"); // todo answer to client
 
-    console.log(GAMES[gameId], GAMES[gameId].players.length, MAX_PLAYERS)
-    if (GAMES[gameId] && GAMES[gameId].players.length < MAX_PLAYERS) {
-        PLAYERS[clientId]["userName"] = userName;
-        GAMES[gameId].players.push(clientId);
+    const player = PLAYERS[clientId];
+    player["userName"] = userName;
+    player["gameRef"] = gameId;
+    GAMES[gameId].players.push(player);
 
-        for (const player of GAMES[gameId].players) {
-            safeSend(PLAYERS[player]["socket"], {
-                "method": "joinGame",
-                "gameId": gameId,
-                "players": GAMES[gameId].players,
-            });
-        }
-
-        console.log("player joined game: ", userName, gameId)
-    } else {
-        console.log("game is full: ", gameId)
+    for (const client of GAMES[gameId].players) {
+        safeSend(client.socketRef, {
+            "method": "joinGame",
+            "gameId": gameId,
+            "players": GAMES[gameId].players,
+        });
     }
+
+    console.log("player joined game: ", userName, gameId)
+
 }
+
 
 
 // initializePlayer(socket.id);

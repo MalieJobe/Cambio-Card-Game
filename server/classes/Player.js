@@ -1,10 +1,11 @@
 export default class Player {
-    constructor(name, socketId, hand = [], gamesWon = 0) {
-        this.name = name;
-        this.socketId = socketId;
-        this.hand = hand;
-        this.gamesWon = gamesWon;
+    constructor(socketRef) {
+        this.name = null;
+        this.socketRef = socketRef;
+        this.hand = null;
+        this.gamesWon = 0;
         this.currentCard = null;
+        this.gameRef = null;
     }
 
     drawCard(deck) {

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import Hand from "./components/Hand.vue";
 
 const activeDeck = ref(null)

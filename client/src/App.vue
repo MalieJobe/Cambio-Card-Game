@@ -7,6 +7,7 @@ const clientUUID = ref(null);
 const userName = ref(null);
 const roomCode = ref(null);
 const gameId = ref(null);
+const setGameId = (id) => gameId.value = id;
 
 const showGame = ref(false);
 
@@ -34,11 +35,8 @@ function parseIncomingMessage(data) {
         case "connection":
             clientUUID.value = data["clientId"];
             break;
-        case "createGame":
+        case "joinGame": // there is not createGame coming from server, as creating client will always join
             gameId.value = data["gameId"];
-            joinGame(); // Join the game after creating it
-            break;
-        case "joinGame":
             showGame.value = true;
             break;
         default:
@@ -60,7 +58,7 @@ function joinGame() {
 
 provide('socket', { socket, safeSend });
 provide('userData', { uuid: clientUUID, userName });
-provide('gameData', { gameId, roomCode, joinGame });
+provide('gameData', { gameId, roomCode, joinGame, setGameId });
 
 </script>
 
