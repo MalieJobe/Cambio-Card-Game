@@ -8,6 +8,14 @@ export default class Player {
         this.gameRef = null;
     }
 
+    anonymizedData = () => {
+        return {
+            name: this.name,
+            gamesWon: this.gamesWon,
+            hand: this.hand.map(card => card ? "redacted" : null),
+        }
+    }
+
     drawCard(deck) {
         this.currentCard = deck.drawCard();
     }

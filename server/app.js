@@ -76,58 +76,26 @@ function joinGame(data) {
     const player = PLAYERS[clientId];
     player["userName"] = userName;
     player["gameRef"] = gameId;
+    player["hand"] = Array(4).fill(null).map(() => takeRandomCardFrom(GAMES[gameId].activeDeck));
     GAMES[gameId].players.push(player);
 
     for (const client of GAMES[gameId].players) {
+        const hiddenPlayersData = GAMES[gameId].players.filter(p => p !== client).map(p => p.anonymizedData());
+        const allPlayersData = [...hiddenPlayersData, client];
         safeSend(client.socketRef, {
             "method": "joinGame",
             "gameId": gameId,
-            "players": GAMES[gameId].players,
+            "players": allPlayersData,
         });
     }
 
     console.log("player joined game: ", userName, gameId)
-
 }
 
 
-
-// initializePlayer(socket.id);
-//     socket.emit("initialState", {
-//         activeDeck: activeDeck[0],
-//         discardedDeck: discardedDeck[discardedDeck.length - 1],
-//         myDeck: playerDecks[socket.id]
-//     });
-
-// import Deck from "./classes/Deck.js";
-// import Player from "./classes/Player.js";
-// import Card from "./classes/Card.js";
-
-// const activeDeck = new Deck([]);
-// activeDeck.loadFullDeck();
-// activeDeck.shuffle();
-
-// const discardedDeck = new Deck([]);
-
-
-// const playerDecks = {}
-// let playerCount = 0;
-// const MAX_PLAYERS = 6;
-
-// function initializePlayer(playerName) {
-//     playerDecks[playerName] = [...Array(4)].map(() => takeRandomCardFrom(activeDeck))
-//     console.log("the deck is: ", playerDecks[playerName])
-// }
-
-// function takeRandomCardFrom(deck) {
-//     const randomCardIndex = Math.floor(Math.random() * deck.length)
-//     const randomCard = deck.splice(randomCardIndex, 1)
-//     console.log("random c is: ", randomCard[0])
-//     return randomCard[0]
-// }
-
-// if (playerCount >= MAX_PLAYERS) {
-//     socket.emit('error', { message: 'The game is full. Please try again later.' });
-//     socket.disconnect();
-//     return;
-// }
+function takeRandomCardFrom(deck) {
+    const randomCardIndex = Math.floor(Math.random() * deck.cards.length)
+    const randomCard = deck.cards.splice(randomCardIndex, 1)
+    console.log("random c is: ", randomCard[0])
+    return randomCard[0]
+}
