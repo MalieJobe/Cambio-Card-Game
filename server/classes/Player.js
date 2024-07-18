@@ -1,6 +1,6 @@
 export default class Player {
     constructor(socketRef) {
-        this.name = null;
+        this.userName = null;
         this.socketRef = socketRef;
         this.hand = null;
         this.gamesWon = 0;
@@ -10,7 +10,7 @@ export default class Player {
 
     anonymizedData = () => {
         return {
-            name: this.name,
+            userName: this.userName,
             gamesWon: this.gamesWon,
             hand: this.hand.map(card => card ? "redacted" : null),
         }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide, ref } from 'vue';
+import { provide, reactive, ref } from 'vue';
 import CambioGame from './CambioGame.vue';
 import Lobby from './Lobby.vue';
 
@@ -8,6 +8,10 @@ const userName = ref(null);
 const roomCode = ref(null);
 const gameId = ref(null);
 const setGameId = (id) => gameId.value = id;
+const gameState = reactive({
+    discardedDeck: null,
+    players: [],
+});
 
 const showGame = ref(false);
 
@@ -37,6 +41,7 @@ function parseIncomingMessage(data) {
             break;
         case "joinGame": // there is not createGame coming from server, as creating client will always join
             gameId.value = data["gameId"];
+            gameState.players = data["players"];
             showGame.value = true;
             break;
         default:
@@ -59,6 +64,7 @@ function joinGame() {
 provide('socket', { socket, safeSend });
 provide('userData', { uuid: clientUUID, userName });
 provide('gameData', { gameId, roomCode, joinGame, setGameId });
+provide('gameState', { gameState });
 
 </script>
 

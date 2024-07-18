@@ -1,11 +1,11 @@
 <script setup>
-import { ref } from "vue";
-import Hand from "./components/Hand.vue";
+import { inject, ref } from "vue";
+import Player from "./components/Player.vue";
 
-const activeDeck = ref(null)
-const discardedDeck = ref(null)
 const myDeck = ref()
 
+const { gameState } = inject("gameState");
+console.log(gameState)
 const playerName = defineProps(["playerName"]);
 
 
@@ -14,7 +14,7 @@ const playerName = defineProps(["playerName"]);
 </script>
 
 <template>
-  <Hand :cards="myDeck" />
+  <Player :player="player.value" v-for="player in gameState.players" />
 </template>
 
 <style scoped></style>
