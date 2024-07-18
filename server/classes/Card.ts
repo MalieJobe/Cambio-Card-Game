@@ -1,16 +1,22 @@
-export default class Card {
-    constructor(suit, rank) {
-        if (!suit || !rank) throw new Error("Suit and value are required");
+import type { Rank, Suit, Action } from "../helper_types";
 
+export default class Card {
+    suit: Suit;
+    rank: Rank;
+    shortName: string;
+    value: number;
+    action: Action | null;
+
+    constructor(suit: Suit, rank: Rank) {
         this.suit = suit;
         this.rank = rank;
-        this.shortName = value + rank;
+        this.shortName = this.suit + this.rank;
         this.value = this.getValue();
         this.action = this.getAction();
     }
 
-    getValue() {
-        if (parseInt(this.rank) !== NaN) return parseInt(this.rank);
+    getValue(): number {
+        if (Number.isNaN(this.rank)) return parseInt(this.rank);
 
         switch (this.rank) {
             case "T":
@@ -23,14 +29,14 @@ export default class Card {
                 else return 20; // black king
             case "A":
                 return 1;
-            case "H":
+            case "F":
                 return 0;
             default:
                 throw new Error("Invalid card rank");
         }
     }
 
-    getAction() {
+    getAction(): Action | null {
         switch (this.rank) {
             case "7":
             case "8":

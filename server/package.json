@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "start": "npx tsc && nodemon ./dist/app.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +17,8 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "@types/ws": "^8.5.11",
+    "nodemon": "^3.1.4",
+    "typescript": "^5.5.3"
   }
 }

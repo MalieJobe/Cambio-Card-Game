@@ -1,5 +1,13 @@
+import Deck from "./Deck";
+import Player from "./Player";
+
 export default class Game {
-    constructor(activeDeck, discards) {
+    players: Player[];
+    activeDeck: Deck;
+    discards: Deck;
+
+
+    constructor(activeDeck: Deck, discards: Deck) {
         this.players = [];
         this.activeDeck = activeDeck;
         this.discards = discards;

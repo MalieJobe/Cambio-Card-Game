@@ -1,30 +1,36 @@
-import { WebSocketServer } from 'ws';
+import { RawData, WebSocket, WebSocketServer } from 'ws';
 import Game from './classes/Game.js';
 import Deck from './classes/Deck.js';
 import Player from './classes/Player.js';
+import Card from './classes/Card.js';
 
 const wss = new WebSocketServer({ port: 3210 });
 
 console.log("Server started on port " + wss.options.port);
 
+type collection<T> = {
+    [key: string]: T,
+};
+
 const MAX_PLAYERS = 6;
-const GAMES = {};
-const PLAYERS = {};
+const GAMES: collection<Game> = {};
+const PLAYERS: collection<Player> = {};
 
-wss.on('connection', ws => {
-
+wss.on('connection', (ws: WebSocket) => {
+    // @ts-ignore
     console.log("new connection: ", ws._socket.remoteAddress, ws._socket.remotePort)
 
     ws.on('error', console.error);
     ws.on('message', data => parseIncomingMessage(data));
 
     const clientUUID = crypto.randomUUID();
+    // @ts-ignore
     PLAYERS[clientUUID] = new Player(ws);
 
     safeSend(ws, { 'method': 'connection', 'clientId': clientUUID });
 });
 
-function safeSend(ws, data) {
+function safeSend(ws: WebSocket, data: { method: string, clientId: string }) {
     try {
         ws.send(JSON.stringify(data));
     } catch (error) {
@@ -32,8 +38,8 @@ function safeSend(ws, data) {
     }
 }
 
-function parseIncomingMessage(data) {
-    const message = JSON.parse(data);
+function parseIncomingMessage(data: RawData): void {
+    const message = JSON.parse(String(data));
     if (!message["method"]) throw new Error("Payload must contain a method key");
     if (!message["clientId"]) throw new Error("Payload must contain a clientId key");
     if (!message["clientId"].match(/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/)) throw new Error("Invalid clientId format");
@@ -51,12 +57,12 @@ function parseIncomingMessage(data) {
     }
 }
 
-function createGame(message) {
+function createGame(message: { clientId: string, userName: string }) {
     const { clientId, userName } = message;
     if (!userName) throw new Error("Payload must contain a userName key");
 
 
-    const gameUUID = crypto.randomUUID();
+    const gameUUID = crypto.randomUUID() as string;
     const game = new Game(new Deck([]), new Deck([]));
     game.activeDeck.loadFullDeck();
     game.activeDeck.shuffle();
@@ -67,9 +73,8 @@ function createGame(message) {
     joinGame({ clientId, "gameId": gameUUID, userName });
 }
 
-function joinGame(data) {
+function joinGame(data: { clientId: string, gameId: string, userName: string }) {
     const { clientId, gameId, userName } = data;
-    if (!gameId) throw new Error("Payload must contain a gameId key");
     if (!GAMES[gameId]) throw new Error("Could not find game"); // todo answer to client
     if (GAMES[gameId].players.length >= MAX_PLAYERS) throw new Error("Game is full"); // todo answer to client
 
@@ -82,6 +87,7 @@ function joinGame(data) {
     for (const client of GAMES[gameId].players) {
         const hiddenPlayersData = GAMES[gameId].players.filter(p => p !== client).map(p => p.anonymizedData());
         const allPlayersData = [...hiddenPlayersData, client];
+        // @ts-ignore
         safeSend(client.socketRef, {
             "method": "joinGame",
             "gameId": gameId,
@@ -93,7 +99,7 @@ function joinGame(data) {
 }
 
 
-function takeRandomCardFrom(deck) {
+function takeRandomCardFrom(deck: Deck): Card {
     const randomCardIndex = Math.floor(Math.random() * deck.cards.length)
     const randomCard = deck.cards.splice(randomCardIndex, 1)
     console.log("random c is: ", randomCard[0])
