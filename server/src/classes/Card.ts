@@ -1,4 +1,4 @@
-import type { Rank, Suit, Action } from "../helper_types";
+import { Rank, Suit, Action } from "src/helper_types.js";
 
 export default class Card {
     suit: Suit;
@@ -16,7 +16,7 @@ export default class Card {
     }
 
     getValue(): number {
-        if (Number.isNaN(this.rank)) return parseInt(this.rank);
+        if (Number.isInteger(this.rank)) return parseInt(this.rank);
 
         switch (this.rank) {
             case "T":

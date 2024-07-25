@@ -1,8 +1,8 @@
 import { RawData, WebSocket, WebSocketServer } from 'ws';
-import Game from './classes/Game.js';
-import Deck from './classes/Deck.js';
 import Player from './classes/Player.js';
 import Card from './classes/Card.js';
+import Game from './classes/Game.js';
+import Deck from './classes/Deck.js';
 
 const wss = new WebSocketServer({ port: 3210 });
 
@@ -30,7 +30,12 @@ wss.on('connection', (ws: WebSocket) => {
     safeSend(ws, { 'method': 'connection', 'clientId': clientUUID });
 });
 
-function safeSend(ws: WebSocket, data: { method: string, clientId: string }) {
+function safeSend(ws: WebSocket, data: {
+    method: string,
+    clientId: string,
+    gameId?: string,
+    players?: Array<Player>
+}) {
     try {
         ws.send(JSON.stringify(data));
     } catch (error) {

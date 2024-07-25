@@ -1,5 +1,5 @@
 import Card from "./Card.js";
-import type { Suit, Rank } from "../helper_types";
+import type { Suit, Rank } from "../helper_types.js";
 
 export default class Deck {
     cards: Array<Card>;

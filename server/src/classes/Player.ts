@@ -1,5 +1,5 @@
-import type Card from "./Card";
-import Deck from "./Deck";
+import type Card from "./Card.js";
+import Deck from "./Deck.js";
 
 export default class Player {
     userName: string | null;
