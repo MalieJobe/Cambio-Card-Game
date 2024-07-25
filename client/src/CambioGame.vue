@@ -5,16 +5,13 @@ import Player from "./components/Player.vue";
 const myDeck = ref()
 
 const { gameState } = inject("gameState");
-console.log(gameState)
 const playerName = defineProps(["playerName"]);
 
-
-
-
+console.log("state: ", gameState.players)
 </script>
 
 <template>
-  <Player :player="player.value" v-for="player in gameState.players" />
+  <Player :player="p" v-for="p in gameState.players" />
 </template>
 
 <style scoped></style>

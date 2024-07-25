@@ -12,7 +12,7 @@
         </div>
         <div class="p-4 pt-0 flex gap-x-2 items-center">
             <input v-model="roomCode" placeholder="Have a game code?" class="w-full min-w-40 p-2 rounded border h-10" />
-            <button @click="joinGame" :disabled="!userName || !roomCode || !uuid"
+            <button @click="initiateJoining" :disabled="!userName || !roomCode || !uuid"
                 class="w-full p-2 bg-primary text-white rounded h-10 disabled:bg-gray-400 disabled:cursor-not-allowed">Join
                 Game</button>
         </div>
@@ -23,7 +23,7 @@
 import { inject, ref, watch } from 'vue';
 
 const { safeSend } = inject('socket');
-const { uuid, userName } = inject('userData');
+const { uuid, userName, setUserName } = inject('userData');
 const { joinGame, setGameId } = inject('gameData');
 
 const roomCode = ref(null);
@@ -36,12 +36,18 @@ watch(roomCode, (code) => {
 
 function createGame() {
     console.log("Creating game");
+    setUserName(userName.value);
 
     safeSend({
         'method': 'createGame',
         'clientId': uuid.value,
         'userName': userName.value,
     });
+}
+
+function initiateJoining() {
+    setUserName(userName.value)
+    joinGame();
 }
 
 

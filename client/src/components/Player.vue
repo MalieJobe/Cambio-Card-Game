@@ -8,5 +8,5 @@ onMounted(() => { console.log("username is: ", player.userName) })
 
 <template>
     <h3>{{ player.userName }}</h3>
-    <Hand :cards="player.hand" />
+    <!-- <Hand :cards="player.hand" /> -->
 </template>

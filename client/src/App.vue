@@ -8,6 +8,7 @@ const userName = ref(null);
 const roomCode = ref(null);
 const gameId = ref(null);
 const setGameId = (id) => gameId.value = id;
+const setUserName = (name) => userName.value = name;
 const gameState = reactive({
     discardedDeck: null,
     players: [],
@@ -62,7 +63,7 @@ function joinGame() {
 }
 
 provide('socket', { socket, safeSend });
-provide('userData', { uuid: clientUUID, userName });
+provide('userData', { uuid: clientUUID, userName, setUserName });
 provide('gameData', { gameId, roomCode, joinGame, setGameId });
 provide('gameState', { gameState });
 
@@ -71,7 +72,7 @@ provide('gameState', { gameState });
 <template>
     <div class="flex h-screen bg-light"> <!-- h-screen and m-auto center it verticall and horizontally -->
         <div class="m-auto pt text-center sm:px-12">
-            <CambioGame v-if="showGame" />
+            <CambioGame v-if="showGame" :player-name="userName" />
             <Lobby v-else />
         </div>
     </div>
