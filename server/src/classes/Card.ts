@@ -7,7 +7,7 @@ export default class Card {
     value: number;
     action: Action | null;
 
-    constructor(suit: Suit, rank: Rank) {
+    constructor(rank: Rank, suit: Suit) {
         this.suit = suit;
         this.rank = rank;
         this.shortName = this.suit + this.rank;
@@ -16,7 +16,8 @@ export default class Card {
     }
 
     getValue(): number {
-        if (Number.isInteger(this.rank)) return parseInt(this.rank);
+        const numericalValue = parseInt(this.rank);
+        if (Number.isInteger(numericalValue)) return numericalValue;
 
         switch (this.rank) {
             case "T":

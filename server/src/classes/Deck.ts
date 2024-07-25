@@ -18,11 +18,12 @@ export default class Deck {
             "AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "TD", "JD", "QD", "KD",
             "AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "TH", "JH", "QH", "KH",
             "AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "TS", "JS", "QS", "KS",
-            "F1", "F2"
+            "FC", "FH"
+            // F stands for Joker. F as in Funny
         ];
 
         cardsTemplates.forEach(template => this.cards.push(
-            new Card(template[0] as Suit, template[1] as Rank)
+            new Card(template[0] as Rank, template[1] as Suit)
         ))
     }
 
