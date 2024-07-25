@@ -1,14 +1,9 @@
 <template>
-    <div class="card">{{ suit }} - {{ value }}</div>
+    <div class="card">{{ isCard ? card.shortName : "Hidden" }}</div>
 </template>
 <script setup>
-import { onMounted } from 'vue';
-
-const suit = defineProps(["suit"]);
-
-onMounted(() => {
-    console.log(suit);
-})
+const { card } = defineProps(["card"]);
+const isCard = typeof card !== "string"; // todo check for Type Card with Typescript
 </script>
 <style scoped>
 .card {
