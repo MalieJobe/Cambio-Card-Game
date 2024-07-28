@@ -10,7 +10,7 @@ export default class Card {
     constructor(rank: Rank, suit: Suit) {
         this.suit = suit;
         this.rank = rank;
-        this.shortName = this.suit + this.rank;
+        this.shortName = this.rank + this.suit;
         this.value = this.getValue();
         this.action = this.getAction();
     }

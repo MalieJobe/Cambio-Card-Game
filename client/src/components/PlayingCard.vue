@@ -1,5 +1,9 @@
 <template>
-    <div class="card">{{ isCard ? card.shortName : "Hidden" }}</div>
+    <div class="card">{{ isCard ? card.shortName : "Hidden" }}
+        <svg>
+            <use :href="'#' + card.shortName" /><!-- # Hashtag for id selector-->
+        </svg>
+    </div>
 </template>
 <script setup>
 const { card } = defineProps(["card"]);
