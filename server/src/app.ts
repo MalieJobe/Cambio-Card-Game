@@ -67,15 +67,15 @@ function createGame(message: { clientId: string, userName: string }) {
     if (!userName) throw new Error("Payload must contain a userName key");
 
 
-    const gameUUID = crypto.randomUUID() as string;
-    const game = new Game(new Deck([]), new Deck([]));
+    const gameUID = Game.generateUID(); // todo check if existing already
+    const game = new Game(gameUID, new Deck([]), new Deck([]));
     game.activeDeck.loadFullDeck();
     game.activeDeck.shuffle();
 
-    GAMES[gameUUID] = game;
-    console.log("new game created: ", gameUUID)
+    GAMES[gameUID] = game;
+    console.log("new game created: ", gameUID)
 
-    joinGame({ clientId, "gameId": gameUUID, userName });
+    joinGame({ clientId, "gameId": gameUID, userName });
 }
 
 function joinGame(data: { clientId: string, gameId: string, userName: string }) {
