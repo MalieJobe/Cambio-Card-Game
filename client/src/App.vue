@@ -5,7 +5,6 @@ import Lobby from './Lobby.vue';
 
 const clientUUID = ref(null);
 const userName = ref(null);
-const roomCode = ref(null);
 const gameId = ref(null);
 const setGameId = (id) => gameId.value = id;
 const setUserName = (name) => userName.value = name;
@@ -64,16 +63,16 @@ function joinGame() {
 
 provide('socket', { socket, safeSend });
 provide('userData', { uuid: clientUUID, userName, setUserName });
-provide('gameData', { gameId, roomCode, joinGame, setGameId });
+provide('gameData', { gameId, joinGame, setGameId });
 provide('gameState', { gameState });
 
 </script>
 
 <template>
-    <div class="flex h-screen bg-light"> <!-- h-screen and m-auto center it verticall and horizontally -->
-        <div class="m-auto pt text-center sm:px-12">
+    <div class="flex bg-light min-h-screen">
+        <main class="m-auto pt text-center">
             <CambioGame v-if="showGame" :player-name="userName" />
             <Lobby v-else />
-        </div>
+        </main>
     </div>
 </template>
